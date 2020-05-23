@@ -4,6 +4,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,6 +42,7 @@ import java.util.Locale;
             String result = null;
             DatePickerDialog dpd;
             Calendar c;
+            DatePickerDialog.OnDateSetListener setListener;
 
             final String url_reg = "https://druiza88.000webhostapp.com/reg_users.php";
 
@@ -59,35 +62,40 @@ import java.util.Locale;
                 reg_register = findViewById(R.id.reg_register);
                 reg_cancel = findViewById(R.id.reg_cancel);
 
+                c = Calendar.getInstance();
+                c.add(Calendar.YEAR,-18);
+                final int tday = c.get(Calendar.DAY_OF_MONTH);
+                final int tmonth = c.get(Calendar.MONTH);
+                final int tyear = c.get(Calendar.YEAR);
+
                 reg_date.setOnClickListener(new View.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onClick(View v) {
-                        c = Calendar.getInstance();
-                        c.add(Calendar.YEAR,-18);
-                        final int tday = c.get(Calendar.DAY_OF_MONTH);
-                        final int tmonth = c.get(Calendar.MONTH);
-                        final int tyear = c.get(Calendar.YEAR);
-                        dpd = new DatePickerDialog(RegisterActivity.this, new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                if(month<9){
-                                    bmonth = "0" + (month+1);
-                                } else {
-                                    bmonth = String.valueOf(month+1);
-                                }
-                                if(dayOfMonth<10){
-                                    bday = "0" + (dayOfMonth);
-                                } else {
-                                    bday = String.valueOf(dayOfMonth);
-                                }
-                                String date = bday + "/" + bmonth + "/" + year;
-                                reg_date.setText(date);
-                            }
-                        }, tyear, tmonth, tday);
+                        dpd = new DatePickerDialog(RegisterActivity.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                                setListener, tyear, tmonth, tday);
+                        dpd.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dpd.show();
                     }
                 });
+
+                setListener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        if(month<9){
+                            bmonth = "0" + (month+1);
+                        } else {
+                            bmonth = String.valueOf(month+1);
+                        }
+                        if(dayOfMonth<10){
+                            bday = "0" + (dayOfMonth);
+                        } else {
+                            bday = String.valueOf(dayOfMonth);
+                        }
+                        String date = bday + "/" + bmonth + "/" + year;
+                        reg_date.setText(date);
+                    }
+                };
 
                 reg_register.setOnClickListener(new View.OnClickListener() {
                     @Override
