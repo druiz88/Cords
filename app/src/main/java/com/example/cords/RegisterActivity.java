@@ -1,15 +1,18 @@
 package com.example.cords;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -21,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -28,11 +32,14 @@ import java.util.Locale;
 
             EditText reg_name, reg_lname, reg_user, reg_pass, reg_email, reg_phone;
             Button reg_register, reg_cancel;
-            String query;
+            TextView reg_date;
+            String query, bmonth, bday;
             BufferedOutputStream os;
             HttpURLConnection con;
             String line = null;
             String result = null;
+            DatePickerDialog dpd;
+            Calendar c;
 
             final String url_reg = "https://druiza88.000webhostapp.com/reg_users.php";
 
@@ -47,9 +54,40 @@ import java.util.Locale;
                 reg_pass = findViewById(R.id.reg_pass);
                 reg_email = findViewById(R.id.reg_email);
                 reg_phone = findViewById(R.id.reg_phone);
+                reg_date = findViewById(R.id.reg_date);
 
                 reg_register = findViewById(R.id.reg_register);
                 reg_cancel = findViewById(R.id.reg_cancel);
+
+                reg_date.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onClick(View v) {
+                        c = Calendar.getInstance();
+                        c.add(Calendar.YEAR,-18);
+                        final int tday = c.get(Calendar.DAY_OF_MONTH);
+                        final int tmonth = c.get(Calendar.MONTH);
+                        final int tyear = c.get(Calendar.YEAR);
+                        dpd = new DatePickerDialog(RegisterActivity.this, new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                if(month<9){
+                                    bmonth = "0" + (month+1);
+                                } else {
+                                    bmonth = String.valueOf(month+1);
+                                }
+                                if(dayOfMonth<10){
+                                    bday = "0" + (dayOfMonth);
+                                } else {
+                                    bday = String.valueOf(dayOfMonth);
+                                }
+                                String date = bday + "/" + bmonth + "/" + year;
+                                reg_date.setText(date);
+                            }
+                        }, tyear, tmonth, tday);
+                        dpd.show();
+                    }
+                });
 
                 reg_register.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -71,9 +109,6 @@ import java.util.Locale;
                         finish();
                     }
                 });
-
-
-
             }
 
             public String RegisterUser(){
@@ -83,18 +118,19 @@ import java.util.Locale;
                 String Email = reg_email.getText().toString();
                 String User = reg_user.getText().toString();
                 String Pass = reg_pass.getText().toString();
+                String Birth = reg_date.getText().toString();
                 String Phone = reg_phone.getText().toString();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
                 String Time = sdf.format(new Date());
 
-
                 String finalURL = url_reg + "?user_user=" + User +
-                "&user_pass=" + Pass +
-                "&user_name=" + Name +
-                "&user_lname=" + LName +
-                "&user_phone=" + Phone +
-                "&user_email=" + Email +
-                "&user_time=" + Time;
+                        "&user_pass=" + Pass +
+                        "&user_name=" + Name +
+                        "&user_lname=" + LName +
+                        "&user_birth=" + Birth +
+                        "&user_phone=" + Phone +
+                        "&user_email=" + Email +
+                        "&user_time=" + Time;
 
 
                 //Connection
@@ -114,6 +150,7 @@ import java.util.Locale;
                     .appendQueryParameter("user_password", Pass)
                     .appendQueryParameter("user_name", Name)
                     .appendQueryParameter("user_lname", LName)
+                        .appendQueryParameter("user_birth", Birth)
                     .appendQueryParameter("user_email", Email)
                     .appendQueryParameter("user_phone", Phone)
                     .appendQueryParameter("user_time", Time);

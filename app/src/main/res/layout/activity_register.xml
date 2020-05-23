@@ -10,44 +10,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-142dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <Button
-                android:id="@+id/reg_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="108dp"
-                android:text="CANCEL"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reg_phone" />
-
-            <EditText
-                android:id="@+id/reg_pass"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:ems="10"
-                android:hint="Password"
-                android:inputType="textPassword"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reg_user" />
-
-            <Button
-                android:id="@+id/reg_register"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="108dp"
-                android:layout_marginTop="32dp"
-                android:text="REGISTER"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reg_phone" />
 
             <EditText
                 android:id="@+id/reg_name"
@@ -62,16 +31,16 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
-                android:id="@+id/reg_phone"
+                android:id="@+id/reg_lname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:ems="10"
-                android:hint="Phone"
-                android:inputType="phone"
+                android:hint="Last Name"
+                android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reg_email" />
+                app:layout_constraintTop_toBottomOf="@+id/reg_name" />
 
             <EditText
                 android:id="@+id/reg_user"
@@ -86,6 +55,31 @@
                 app:layout_constraintTop_toBottomOf="@+id/reg_lname" />
 
             <EditText
+                android:id="@+id/reg_pass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:ems="10"
+                android:hint="Password"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/reg_user" />
+
+            <TextView
+                android:id="@+id/reg_date"
+                android:layout_width="215dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                android:paddingStart="5dp"
+                android:textSize="18sp"
+                android:ems="10"
+                android:gravity="center_vertical"
+                android:hint="Date of Birth"
+                app:layout_constraintStart_toStartOf="@+id/reg_pass"
+                app:layout_constraintTop_toBottomOf="@+id/reg_pass" />
+
+            <EditText
                 android:id="@+id/reg_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -95,20 +89,45 @@
                 android:inputType="textEmailAddress"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reg_pass" />
+                app:layout_constraintTop_toBottomOf="@+id/reg_date" />
 
             <EditText
-                android:id="@+id/reg_lname"
+                android:id="@+id/reg_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:ems="10"
-                android:hint="Last Name"
-                android:inputType="textPersonName"
+                android:hint="Phone"
+                android:inputType="phone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reg_name" />
+                app:layout_constraintTop_toBottomOf="@+id/reg_email" />
+
+            <Button
+                android:id="@+id/reg_register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="108dp"
+                android:layout_marginTop="32dp"
+                android:text="REGISTER"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/reg_phone" />
+
+            <Button
+                android:id="@+id/reg_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="108dp"
+                android:text="CANCEL"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/reg_phone" />
+
+
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
