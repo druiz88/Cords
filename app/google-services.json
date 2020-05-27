@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "235760865056",
+    "firebase_url": "https://cardtest-a5df6.firebaseio.com",
+    "project_id": "cardtest-a5df6",
+    "storage_bucket": "cardtest-a5df6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235760865056:android:dd01c688078c9f8cb49145",
+        "android_client_info": {
+          "package_name": "com.example.cords"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "235760865056-6t96c39bpft8fli4uub24p90ucg52jr9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD53GMI439ijPHVROkYXdBoFxvLe8bSJp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235760865056-6t96c39bpft8fli4uub24p90ucg52jr9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

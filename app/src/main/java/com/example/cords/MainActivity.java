@@ -38,14 +38,14 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private EditText log_user, log_pass;
-    Button btn_login, btn_reg;
     private BufferedOutputStream os;
-    String query;
     private HttpURLConnection con;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+
+    Button btn_login, btn_reg;
+    String query, AdLine;
     String line = null;
     String result = null;
-    FusedLocationProviderClient fusedLocationProviderClient;
-    String AdLine;
 
     final String url_Login = "https://druiza88.000webhostapp.com/login_user2.php";
 
@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
                 StrictMode.setThreadPolicy((new StrictMode.ThreadPolicy.Builder().permitNetwork().build()));
                 if(LoginUser().equals("login")){
                     Intent i = new Intent(MainActivity.this, LobbyActivity.class);
+                    String User = log_user.getText().toString();
+                    i.putExtra("user",User);
                     startActivity(i);
                     finish();
                 }
