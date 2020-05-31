@@ -64,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
         reg_register = findViewById(R.id.reg_register);
         reg_cancel = findViewById(R.id.reg_cancel);
 
-        //Datepicker Dialog
+        //Date Picker Dialog
         c = Calendar.getInstance();
         c.add(Calendar.YEAR,-18);
         final int tday = c.get(Calendar.DAY_OF_MONTH);
@@ -215,7 +215,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         return result;
-
     }
 
 }

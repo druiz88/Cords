@@ -22,14 +22,14 @@
         tools:targetApi="m">
         <activity android:name=".RegisterActivity"
             android:screenOrientation="landscape"/>
-        <activity android:name=".LobbyActivity" />
+        <activity android:name=".LobbyActivity"
+            android:screenOrientation="landscape"/>
         <activity
             android:name=".MainActivity"
             tools:ignore="LockedOrientationActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

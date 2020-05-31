@@ -47,15 +47,18 @@ public class LobbyActivity extends AppCompatActivity {
     private ListView listView;
     private List<String> matchList;
 
-    String query, MatchID, nPlayers, Time, aPlayers;
+    String query, MatchID, nPlayers, Time, playerID;
     String playerName = "";
     String line = null;
     String result = null;
     Button lob_create;
+    ListAdapter adapter;
 
     DatabaseReference matchRef, matchesRef;
 
-    final String url_reg = "https://druiza88.000webhostapp.com/reg_matches.php";
+    final String url_reg = "https://druiza88.000webhostapp.com/reg_lobbies.php";
+    final String regMatchURL = "https://druiza88.000webhostapp.com/reg_match.php";
+    final String checkMatchURL = "https://druiza88.000webhostapp.com/read_log.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +69,8 @@ public class LobbyActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         playerName = i.getStringExtra("user");
+        playerID = String.valueOf(i.getIntExtra("id", 0));
         assert playerName != null;
-        Log.d("User", playerName);
 
         listView = findViewById(R.id.listView);
         lob_create = findViewById(R.id.lob_create);
@@ -78,36 +81,45 @@ public class LobbyActivity extends AppCompatActivity {
         lob_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertDialog.Builder diag = new AlertDialog.Builder(LobbyActivity.this);
-                @SuppressLint("InflateParams") View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
-                spinner = mView.findViewById(R.id.spinner);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(LobbyActivity.this,
-                        android.R.layout.simple_spinner_item,getResources().getStringArray(R.array.numlist));
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner.setAdapter(adapter);
-                diag.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(spinner.getSelectedItem().toString().equalsIgnoreCase("Pick players number")){
-                            Toast.makeText(LobbyActivity.this, "Please pick a player number", Toast.LENGTH_SHORT).show();
-                        } else {
-                            MatchID = RegisterMatch();
-                            matchRef = database.getReference("matches/" + MatchID);
-                            matchRef.child("Count").setValue(1);
-                            matchRef.child("Players").setValue(nPlayers);
-                            matchRef.child("Player" + 1).setValue(playerName);
+
+                final String chkMatch = checkLogMatch();
+
+                if(chkMatch.equals("Go")){
+                    //Player number builder
+                    final AlertDialog.Builder diag = new AlertDialog.Builder(LobbyActivity.this);
+                    @SuppressLint("InflateParams") View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
+                    spinner = mView.findViewById(R.id.spinner);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(LobbyActivity.this,
+                            android.R.layout.simple_spinner_item,getResources().getStringArray(R.array.numlist));
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinner.setAdapter(adapter);
+                    diag.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(spinner.getSelectedItem().toString().equalsIgnoreCase("Pick players number")){
+                                Toast.makeText(LobbyActivity.this, "Please pick a player number", Toast.LENGTH_SHORT).show();
+                            } else {
+                                MatchID = RegisterLobby();
+                                matchRef = database.getReference("Matches/" + MatchID);
+                                matchRef.child("Count").setValue(1);
+                                matchRef.child("Size").setValue(Long.parseLong(nPlayers));
+                                String RegMsg = RegMatch(MatchID);
+                                Toast.makeText(LobbyActivity.this, RegMsg, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
-                diag.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                diag.setView(mView);
-                AlertDialog dialg = diag.create();
-                dialg.show();
+                    });
+                    diag.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    diag.setView(mView);
+                    AlertDialog dialg = diag.create();
+                    dialg.show();
+                } else {
+                    Toast.makeText(LobbyActivity.this, chkMatch, Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -116,39 +128,7 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                final String itemValue = (String) listView.getItemAtPosition(position);
-                final DatabaseReference countRef = database.getReference("matches/" + itemValue).child("Count");
 
-                database.getReference("matches/" + itemValue).child("Players").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        aPlayers = dataSnapshot.getValue(String.class);
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
-
-                //Full Match condition
-                countRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Long aCount = dataSnapshot.getValue(Long.class);
-                        assert aCount != null;
-                        if(aCount.equals(Long.parseLong(aPlayers))){
-                            Toast.makeText(LobbyActivity.this, "The match is full", Toast.LENGTH_SHORT).show();
-                        } else {
-                            countRef.setValue(aCount+1);
-                            matchRef = database.getReference("matches/" + itemValue);
-                            matchRef.child("Player" + (aCount+1)).setValue(playerName);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
             }
         });
 
@@ -157,7 +137,7 @@ public class LobbyActivity extends AppCompatActivity {
 
 
     private void addRoomsEventListener(){
-        matchesRef = database.getReference("matches");
+        matchesRef = database.getReference("Matches");
         matchesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -165,7 +145,7 @@ public class LobbyActivity extends AppCompatActivity {
                 Iterable<DataSnapshot> matches = dataSnapshot.getChildren();
                 for(DataSnapshot snapshot : matches){
                     matchList.add(snapshot.getKey());
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(LobbyActivity.this, android.R.layout.simple_list_item_1, matchList);
+                    adapter = new ListAdapter(LobbyActivity.this, R.layout.activity_list_adapter, matchList, playerName);
                     listView.setAdapter(adapter);
                 }
             }
@@ -177,14 +157,15 @@ public class LobbyActivity extends AppCompatActivity {
         });
     }
 
-    public String RegisterMatch(){
+    public String RegisterLobby(){
 
         nPlayers = spinner.getSelectedItem().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         Time = sdf.format(new Date());
 
         String finalURL = url_reg + "?user_nplayers=" + nPlayers +
-                "&user_time=" + Time;
+                "&user_time=" + Time +
+                "&user_host=" + playerName;
 
         //Connection
         try {
@@ -200,7 +181,65 @@ public class LobbyActivity extends AppCompatActivity {
         try {
             Uri.Builder builder = new Uri.Builder()
                     .appendQueryParameter("user_nplayers", nPlayers)
-                    .appendQueryParameter("user_time", Time);
+                    .appendQueryParameter("user_time", Time)
+                    .appendQueryParameter("user_host", playerName);
+            query = builder.build().getEncodedQuery();
+
+            os = new BufferedOutputStream(con.getOutputStream());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+            writer.write(query);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Response
+        try {
+            int response_code = con.getResponseCode();
+            // Check if successful connection made
+            if (response_code == HttpURLConnection.HTTP_OK) {
+                // Read data sent from server
+                InputStream input = con.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                StringBuilder sb = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+                os.close();
+
+                // Pass data to onPostExecute method
+                result = sb.toString();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            con.disconnect();
+        }
+
+        return result;
+    }
+
+    public String RegMatch(String itemvalue){
+
+        String finalLogURL = regMatchURL + "?user_user=" + playerName +
+                "&user_match=" + itemvalue;
+
+        //Connection
+        try {
+            URL url = new URL(finalLogURL);
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Append Parameters
+        try {
+            Uri.Builder builder = new Uri.Builder()
+                    .appendQueryParameter("user_user", playerName)
+                    .appendQueryParameter("user_match", itemvalue);
             query = builder.build().getEncodedQuery();
 
             os = new BufferedOutputStream(con.getOutputStream());
@@ -229,7 +268,61 @@ public class LobbyActivity extends AppCompatActivity {
                 // Pass data to onPostExecute method
                 result = sb.toString();
 
-                Log.d("Result",result);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            con.disconnect();
+        }
+
+        return result;
+    }
+
+    public String checkLogMatch(){
+
+        String finalLogURL = checkMatchURL + "?user_user=" + playerName;
+
+        //Connection
+        try {
+            URL url = new URL(finalLogURL);
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //Append Parameters
+        try {
+            Uri.Builder builder = new Uri.Builder()
+                    .appendQueryParameter("user_user", playerName);
+            query = builder.build().getEncodedQuery();
+
+            os = new BufferedOutputStream(con.getOutputStream());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+            writer.write(query);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Response
+        try {
+            int response_code = con.getResponseCode();
+            // Check if successful connection made
+            if (response_code == HttpURLConnection.HTTP_OK) {
+                // Read data sent from server
+                InputStream input = con.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                StringBuilder sb = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+                os.close();
+
+                // Pass data to onPostExecute method
+                result = sb.toString();
 
             }
         } catch (IOException e) {
@@ -239,11 +332,6 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         return result;
-
     }
-
-
-
-
 
 }

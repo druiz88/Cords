@@ -71,10 +71,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 StrictMode.setThreadPolicy((new StrictMode.ThreadPolicy.Builder().permitNetwork().build()));
-                if(LoginUser().equals("login")){
+                String id = LoginUser();
+                if(!"not inserted".equals(id) && !"fail".equals(id)){
+                    int qID = Integer.parseInt(id);
                     Intent i = new Intent(MainActivity.this, LobbyActivity.class);
                     String User = log_user.getText().toString();
                     i.putExtra("user",User);
+                    i.putExtra("id", qID);
                     startActivity(i);
                     finish();
                 }
@@ -99,9 +102,6 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         String Time = sdf.format(new Date());
         String Location = getLocation();
-
-        Log.d("Time", Time);
-        Log.d("Location", Location);
 
         String finalURL = url_Login + "?user_user=" + User +
                 "&user_password=" + Password +
@@ -151,8 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 os.close();
                 // Pass data to onPostExecute method
                 result = sb.toString();
-                Log.d("Result",result);
-                if (result.equalsIgnoreCase("login")) {
+                if (!"not inserted".equals(result) && !"fail".equals(result)) {
                     Toast.makeText(MainActivity.this, "Successfully Logged In", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Email or Password mismatched!", Toast.LENGTH_LONG).show();
