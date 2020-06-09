@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class LobbyActivity extends AppCompatActivity {
@@ -46,6 +48,7 @@ public class LobbyActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private ListView listView;
     private List<String> matchList;
+    private TextView tvName;
 
     String query, MatchID, nPlayers, Time, playerID;
     String playerName = "";
@@ -74,6 +77,9 @@ public class LobbyActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
         lob_create = findViewById(R.id.lob_create);
+        tvName = findViewById(R.id.tvName);
+
+        tvName.setText(playerName);
 
         matchList = new ArrayList<>();
 
@@ -103,6 +109,7 @@ public class LobbyActivity extends AppCompatActivity {
                                 matchRef = database.getReference("Matches/" + MatchID);
                                 matchRef.child("Count").setValue(1);
                                 matchRef.child("Size").setValue(Long.parseLong(nPlayers));
+                                matchRef.child("Players").child(playerName).child("Hand").setValue("-");
                                 String RegMsg = RegMatch(MatchID);
                                 Toast.makeText(LobbyActivity.this, RegMsg, Toast.LENGTH_SHORT).show();
                             }
@@ -120,15 +127,6 @@ public class LobbyActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(LobbyActivity.this, chkMatch, Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-
-        //Display matches
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-
             }
         });
 

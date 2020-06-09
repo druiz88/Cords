@@ -58,4 +58,23 @@
         app:elevation="0dp"
         app:fabSize="normal" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="140dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="#FFF"
+        android:focusable="false"
+        android:clickable="false"
+        android:fadingEdgeLength="5dp"
+        app:borderWidth="0dp"
+        android:gravity="center_vertical"
+        android:src="@drawable/ic_play_arrow_black_24dp"
+        android:tint="@color/colorGray"
+        app:elevation="0dp"
+        app:fabSize="normal" />
+
 </RelativeLayout>

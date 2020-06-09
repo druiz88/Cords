@@ -3,6 +3,8 @@ package com.example.cords;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.util.Log;
@@ -12,14 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,17 +29,20 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Objects;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 
-public class ListAdapter extends ArrayAdapter<String> {
+public class ListAdapter extends ArrayAdapter<String> implements View.OnClickListener {
 
     private List<String> users;
     private LayoutInflater mInflater;
     private int mViewResourceId;
-    private FloatingActionButton itemfab, itemfab2;
+    private FloatingActionButton itemfab, itemfab2, itemfab3;
     private Context context;
     private HttpURLConnection con;
     private BufferedOutputStream os;
@@ -47,6 +50,7 @@ public class ListAdapter extends ArrayAdapter<String> {
     String line = null;
     String result = null;
     String query, playerName;
+    private String matched;
 
     public ListAdapter(Context context, int textViewResourceId, List<String> userList, String playa) {
         super(context, textViewResourceId);
@@ -74,6 +78,8 @@ public class ListAdapter extends ArrayAdapter<String> {
     public View getView(int i, View view, ViewGroup viewGroup) {
         view = mInflater.inflate(mViewResourceId,null);
 
+        final Map<String, FloatingActionButton> playerList = new HashMap<>();
+
         final String splat = users.get(i);
         database = FirebaseDatabase.getInstance();
 
@@ -83,6 +89,57 @@ public class ListAdapter extends ArrayAdapter<String> {
                 name.setText(splat);
             }
         }
+
+        itemfab3 = view.findViewById(R.id.fab7);
+        itemfab3.setEnabled(false);
+
+        playerList.put("fab" + users.get(i), itemfab3);
+
+        database.getReference("Matches/" + splat).child("Players").addValueEventListener(new ValueEventListener() {
+            @SuppressLint("ResourceAsColor")
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                    if(Objects.requireNonNull(childDataSnapshot.getKey()).equals(playerName)){
+                        matched = childDataSnapshot.getRef().getParent().getParent().getKey();
+                        FloatingActionButton btn = playerList.get("fab" + matched);
+                        btn.setEnabled(true);
+                        DrawableCompat.setTintList(DrawableCompat.wrap(btn.getDrawable()), ColorStateList.valueOf(Color.BLUE));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+        itemfab3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final DatabaseReference startRef = database.getReference("Matches/" + splat);
+
+                startRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.child("Players").child(playerName).exists()){
+                            Long bSize = dataSnapshot.child("Size").getValue(Long.class);
+                            Intent intent = new Intent(context, MatchActivity.class);
+                            intent.putExtra("match", splat);
+                            intent.putExtra("size", bSize);
+                            context.startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
 
         itemfab = view.findViewById(R.id.fab5);
         itemfab.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +155,7 @@ public class ListAdapter extends ArrayAdapter<String> {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         Long aCount = dataSnapshot.getValue(Long.class);
                         countRef.setValue(aCount-1);
+                        database.getReference("Matches/" + splat).child("Players").child(playerName).removeValue();
                     }
 
                     @Override
@@ -107,6 +165,7 @@ public class ListAdapter extends ArrayAdapter<String> {
                 });
             }
         });
+
 
         itemfab2 = view.findViewById(R.id.fab6);
         itemfab2.setOnClickListener(new View.OnClickListener() {
@@ -136,6 +195,7 @@ public class ListAdapter extends ArrayAdapter<String> {
                                         String RegMsg = RegMatch(splat);
                                         Toast.makeText(context, RegMsg, Toast.LENGTH_SHORT).show();
                                         if(!"User already".equals(RegMsg.substring(0, 12))) {
+                                            fatRef.child("Players").child(playerName).child("Hand").setValue("-");
                                             countRef.setValue(points);
                                         }
                                     }
@@ -156,6 +216,8 @@ public class ListAdapter extends ArrayAdapter<String> {
                 });
             }
         });
+
+
 
 
         return view;
@@ -285,4 +347,10 @@ public class ListAdapter extends ArrayAdapter<String> {
         return result;
     }
 
+    @Override
+    public void onClick(View v) {
+
+
+
+    }
 }
