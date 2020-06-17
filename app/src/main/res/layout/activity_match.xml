@@ -21,8 +21,8 @@
 
     <LinearLayout
         android:id="@+id/linear"
-        android:layout_width="match_parent"
-        android:layout_height="125dp"
+        android:layout_width="550dp"
+        android:layout_height="100dp"
         android:layout_marginBottom="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/button2"
@@ -33,9 +33,9 @@
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
-            android:layout_marginStart="50dp"
+            android:layout_marginStart="30dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/app_name"
             android:src="@drawable/gray_back" />
@@ -43,7 +43,7 @@
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -53,7 +53,7 @@
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -63,7 +63,7 @@
         <ImageView
             android:id="@+id/imageView4"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -73,7 +73,7 @@
         <ImageView
             android:id="@+id/imageView5"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -83,7 +83,7 @@
         <ImageView
             android:id="@+id/imageView6"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -93,7 +93,7 @@
         <ImageView
             android:id="@+id/imageView7"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -103,7 +103,7 @@
         <ImageView
             android:id="@+id/imageView8"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -113,7 +113,7 @@
         <ImageView
             android:id="@+id/imageView9"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -123,7 +123,7 @@
         <ImageView
             android:id="@+id/imageView10"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -133,7 +133,7 @@
         <ImageView
             android:id="@+id/imageView11"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:layout_marginStart="-30dp"
             android:adjustViewBounds="true"
@@ -152,6 +152,40 @@
         android:text="ABANDON"
         android:onClick="Abandon2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button2"/>
+        app:layout_constraintStart_toEndOf="@+id/button2"
+        tools:ignore="OnClick" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textColor="#000"
+        android:textStyle="bold"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linear" />
+
+    <LinearLayout
+        android:id="@+id/linear2"
+        android:layout_width="177dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/button5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/linear"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="START"
+        android:onClick="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button5"
+        app:layout_constraintTop_toBottomOf="@+id/linear" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

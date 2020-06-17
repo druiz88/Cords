@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 StrictMode.setThreadPolicy((new StrictMode.ThreadPolicy.Builder().permitNetwork().build()));
                 String id = LoginUser();
+                Log.d("playid", id);
                 if(!"not inserted".equals(id) && !"fail".equals(id)){
                     int qID = Integer.parseInt(id);
                     Intent i = new Intent(MainActivity.this, LobbyActivity.class);
@@ -80,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
                     i.putExtra("id", qID);
                     startActivity(i);
                     finish();
+                } else {
+                    Toast.makeText(MainActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -176,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
                         Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
                         List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
                         AdLine = String.valueOf(addresses.get(0).getAddressLine(0));
-                        Log.d("Loc",AdLine);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

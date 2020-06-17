@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,9 @@ public class ListAdapter extends ArrayAdapter<String> implements View.OnClickLis
     String result = null;
     String query, playerName;
     private String matched;
+    public Deck deck;
+    public Map<String, ArrayList<String>> handz;
+    public List<String> playerList;
 
     public ListAdapter(Context context, int textViewResourceId, List<String> userList, String playa) {
         super(context, textViewResourceId);
@@ -126,9 +131,11 @@ public class ListAdapter extends ArrayAdapter<String> implements View.OnClickLis
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(dataSnapshot.child("Players").child(playerName).exists()){
                             Long bSize = dataSnapshot.child("Size").getValue(Long.class);
+                            deal(bSize, Long.parseLong(splat));
                             Intent intent = new Intent(context, MatchActivity.class);
                             intent.putExtra("match", splat);
                             intent.putExtra("size", bSize);
+                            intent.putExtra("player", playerName);
                             context.startActivity(intent);
                         }
                     }
@@ -217,18 +224,7 @@ public class ListAdapter extends ArrayAdapter<String> implements View.OnClickLis
             }
         });
 
-
-
-
         return view;
-    }
-
-    private void refresh(){
-        Intent i =  getContext().getPackageManager()
-                .getLaunchIntentForPackage(getContext().getPackageName());
-        assert i != null;
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(i);
     }
 
     private String abandonLobby(String splot){
@@ -347,10 +343,55 @@ public class ListAdapter extends ArrayAdapter<String> implements View.OnClickLis
         return result;
     }
 
+
+    private void deal(Long match_size, Long match_id){
+
+        playerList = new ArrayList<>();
+        deck = new Deck();
+
+        handz = deck.dealHands(match_size.intValue());
+
+        database.getReference("Matches/" + match_id).child("Players").child("Deck").child("Hand").setValue(deck.arrayDeck().toString());
+        database.getReference("Matches/" + match_id).child("Players").child("Discard Pile").child("Hand").setValue("-");
+
+        final ArrayList<String> Order = new ArrayList<>();
+        for (int c = 0; c < match_size; c++) {
+            Order.add(String.valueOf(c + 1));
+        }
+        Collections.shuffle(Order);
+
+        final DatabaseReference playersRef = database.getReference("Matches/" + match_id);
+
+        playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            int z = 0;
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                playerList.clear();
+                Iterable<DataSnapshot> players = dataSnapshot.child("Players").getChildren();
+                for (DataSnapshot snapshot : players) {
+                    String decker = snapshot.getKey();
+                    if (!decker.equals("Deck") && !decker.equals("Discard Pile")) {
+                        playersRef.child("Players").child(snapshot.getKey()).child("Order").setValue(Long.parseLong(Order.get(z)));
+                        playersRef.child("Players").child(snapshot.getKey()).child("Cards").setValue(11);
+                        playersRef.child("Players").child(snapshot.getKey()).child("Hand").setValue(handz.get("n" + Order.get(z)).toString());
+                        z = z + 1;
+                    } else if (decker.equals("Deck")) {
+                        Long size = dataSnapshot.child("Size").getValue(Long.class);
+                        playersRef.child("Players").child("Deck").child("Cards").setValue(108 - 11*size);
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
     @Override
     public void onClick(View v) {
-
-
 
     }
 }

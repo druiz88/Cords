@@ -3,6 +3,7 @@ package com.example.cords;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -12,45 +13,40 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.database.Cursor;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
 
 public class MatchActivity extends AppCompatActivity {
 
-    Deck deck;
+
     TextView textView;
-    Cursor data, data2;
-    Map<String, ArrayList<String>> handz;
-    String strk, State;
+    String strk, playerName;
     ImageView[] imageViews = new ImageView[11];
     FirebaseDatabase database;
-    Long match_size;
-    List<String> playerList;
+    ArrayList<String> al;
 
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match);
 
-        deck = new Deck();
         database = FirebaseDatabase.getInstance();
-        playerList = new ArrayList<>();
 
         Intent intent = getIntent();
         strk = intent.getStringExtra("match");
-        match_size = intent.getLongExtra("size",0);
+        playerName = intent.getStringExtra("player");
+
+        textView = findViewById(R.id.textView);
+        textView.setText("User: " + playerName);
 
         for(int u = 0; u < 11; u++){
             String imageID = "imageView" + (u+1);
@@ -58,55 +54,47 @@ public class MatchActivity extends AppCompatActivity {
             imageViews[u] = findViewById(resID);
         }
 
-        handz = deck.dealHands(match_size.intValue());
+        final DatabaseReference handRef = database.getReference("Matches/" + strk).child("Players").child(playerName);
 
-        database.getReference("Matches/" + strk).child("Players").child("Deck").child("Hand").setValue(deck.arrayDeck().toString());
-
-        final ArrayList<String> Order = new ArrayList<>();
-        for(int c = 0; c < match_size; c++) {
-            Order.add(String.valueOf(c+1));
-        }
-        Collections.shuffle(Order);
-
-        final DatabaseReference playersRef = database.getReference("Matches/" + strk).child("Players");
-
-        playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            int z = 0;
+        handRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                playerList.clear();
-                Iterable<DataSnapshot> players = dataSnapshot.getChildren();
-                for(DataSnapshot snapshot : players){
-                    String decker = snapshot.getKey();
-                    if(!decker.equals("Deck")){
-                        playersRef.child(snapshot.getKey()).child("Order").setValue(Order.get(z));
-                        playersRef.child(snapshot.getKey()).child("Hand").setValue(handz.get("n" + (z + 1)).toString());
-                        z = z + 1;
-                    }
-                }
+                String hand = dataSnapshot.child("Hand").getValue(String.class);
+                Long cards = dataSnapshot.child("Cards").getValue(Long.class);
+                assert hand != null;
+                assert cards != null;
+                String num = hand.substring(1,hand.length()-1);
+                String[] str = num.split(", ");
+                al = new ArrayList<>(Arrays.asList(str).subList(0, cards.intValue()));
+                drawHand(al, cards);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
 
-        dealHand();
     }
 
     public void Sort(View view){
-        Collections.sort(Objects.requireNonNull(handz.get("n1")));
-        dealHand();
-        updateData(Objects.requireNonNull(handz.get("n1")).toString());
+        Collections.sort(al);
+        updateHand(al.toString());
     }
 
-    public void updateData(String vHand){
-
+    public void Start(View view){
+        drawCard();
     }
 
-    public void dealHand(){
+    public void updateHand(String vHand){
+        final DatabaseReference handRef = database.getReference("Matches/" + strk).child("Players").child(playerName).child("Hand");
+        handRef.setValue(vHand);
+    }
 
-        for(int k = 0; k < 11; k++) {
-            String fnm = Objects.requireNonNull(handz.get("n1")).get(k);
+    public void drawHand(ArrayList<String> playerOrder, Long ncards){
+
+        for(int k = 0; k < ncards; k++) {
+            String fnm = playerOrder.get(k);
             final ImageView img = imageViews[k];
             String PACKAGE_NAME = getApplicationContext().getPackageName();
             int imgId = getResources().getIdentifier(PACKAGE_NAME+":drawable/"+fnm , null, null);
@@ -124,7 +112,50 @@ public class MatchActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
+
+    public void drawCard(){
+        final DatabaseReference handRef = database.getReference("Matches/" + strk).child("Players");
+
+        handRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String hand = dataSnapshot.child("Deck").child("Hand").getValue(String.class);
+                Long dcards = dataSnapshot.child("Deck").child("Cards").getValue(Long.class);
+                assert hand != null;
+                String num = hand.substring(1,hand.length()-1);
+                String[] str = num.split(", ");
+                assert dcards != null;
+                ArrayList<String> decklist = new ArrayList<>(Arrays.asList(str).subList(0, dcards.intValue()));
+                String lcard = decklist.get(dcards.intValue()-1);
+                Log.d("last card", lcard);
+                Log.d("Deck cards", String.valueOf(dcards));
+                decklist.remove(dcards.intValue()-1);
+                handRef.child("Deck").child("Hand").setValue(decklist.toString());
+                handRef.child("Deck").child("Cards").setValue(dcards.intValue()-1);
+
+                String hand2 = dataSnapshot.child(playerName).child("Hand").getValue(String.class);
+                Long dcards2 = dataSnapshot.child(playerName).child("Cards").getValue(Long.class);
+                assert hand2 != null;
+                String num2 = hand2.substring(1,hand2.length()-1);
+                String[] str2 = num2.split(", ");
+                assert dcards2 != null;
+                Log.d("player hand", hand2);
+                Log.d("player cards", String.valueOf(dcards2));
+                al = new ArrayList<>(Arrays.asList(str2).subList(0, dcards2.intValue()));
+                al.add(lcard);
+                Log.d("al", al.toString());
+                handRef.child(playerName).child("Hand").setValue(al.toString());
+                handRef.child(playerName).child("Cards").setValue(al.size());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
 
 }

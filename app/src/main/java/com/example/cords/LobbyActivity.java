@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 
 public class LobbyActivity extends AppCompatActivity {
@@ -48,7 +46,6 @@ public class LobbyActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private ListView listView;
     private List<String> matchList;
-    private TextView tvName;
 
     String query, MatchID, nPlayers, Time, playerID;
     String playerName = "";
@@ -62,7 +59,9 @@ public class LobbyActivity extends AppCompatActivity {
     final String url_reg = "https://druiza88.000webhostapp.com/reg_lobbies.php";
     final String regMatchURL = "https://druiza88.000webhostapp.com/reg_match.php";
     final String checkMatchURL = "https://druiza88.000webhostapp.com/read_log.php";
+    final String checkMatchID = "https://druiza88.000webhostapp.com/check_match_id.php";
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,9 +76,9 @@ public class LobbyActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
         lob_create = findViewById(R.id.lob_create);
-        tvName = findViewById(R.id.tvName);
+        TextView tvName = findViewById(R.id.tvName);
 
-        tvName.setText(playerName);
+        tvName.setText("User: " + playerName);
 
         matchList = new ArrayList<>();
 
@@ -88,7 +87,7 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                final String chkMatch = checkLogMatch();
+                final String chkMatch = checkLogMatch(checkMatchURL);
 
                 if(chkMatch.equals("Go")){
                     //Player number builder
@@ -131,6 +130,26 @@ public class LobbyActivity extends AppCompatActivity {
         });
 
         addRoomsEventListener();
+
+        final String match_id = checkLogMatch(checkMatchID);
+
+        DatabaseReference handRef = database.getReference("Matches/" + match_id);
+
+        handRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Intent intent = new Intent(LobbyActivity.this, MatchActivity.class);
+                intent.putExtra("match", match_id);
+                intent.putExtra("player", playerName);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
 
@@ -276,9 +295,9 @@ public class LobbyActivity extends AppCompatActivity {
         return result;
     }
 
-    public String checkLogMatch(){
+    public String checkLogMatch(String splatURL){
 
-        String finalLogURL = checkMatchURL + "?user_user=" + playerName;
+        String finalLogURL = splatURL + "?user_user=" + playerName;
 
         //Connection
         try {
